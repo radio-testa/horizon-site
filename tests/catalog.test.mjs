@@ -1,0 +1,39 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {buildCatalog, githubSource} from '../hosting/catalog.mjs';
+import {render} from '../hosting/build.mjs';
+import {fixtures, repository} from './fixture.mjs';
+
+const f = fixtures();
+const build = (rows, latest, tamper) => buildCatalog(f.source(rows, latest, tamper), repository, true);
+const download = fs.readFileSync(new URL('../site/download.html', import.meta.url), 'utf8');
+const home = fs.readFileSync(new URL('../site/index.html', import.meta.url), 'utf8');
+const empty = await buildCatalog({releases(){throw Error('Called API while disabled');}}, repository);
+assert.equal(empty.current, null);
+assert.doesNotMatch(render(download,'download.html',empty), /href="[^"]+\.exe"/);
+const one = await build([f.first], f.first);
+assert.equal(one.current, '1.1.5');
+assert.match(render(download,'download.html',one), /href="[^"]+\/v1\.1\.5\/HORIZON_Setup\.exe"/);
+const two = await build([f.first,f.next,f.draft,f.candidate], f.next);
+assert.deepEqual(two.releases.map(r=>r.version), ['1.1.6','1.1.5']);
+assert.match(render(home,'index.html',two), /HORIZON 1\.1\.6 Stable/);
+assert.match(render(download,'download.html',two), /release-1\.1\.5/);
+assert.equal(two.current,'1.1.6');
+await assert.rejects(build([{...f.first,assets:f.first.assets.slice(0,1)}], f.first), /allegato richiesto/);
+await assert.rejects(build([f.first],f.first,true), /SHA-256/);
+await assert.rejects(build([{...f.first,tag_name:'v1.1.5-rc7'}],f.first), /Tag Stable/);
+await assert.rejects(build([{...f.first,published_at:'invalid'}],f.first), /metadati/);
+await assert.rejects(build([f.first],f.next), /Latest incoerente/);
+assert.deepEqual((await build([f.first],f.first)).releases.map(x=>x.version), ['1.1.5']);
+assert.equal((await build([f.first,f.next],f.first)).current, '1.1.5');
+assert.equal((await build([],null)).current, null);
+await assert.rejects(buildCatalog(githubSource(repository,'',async()=>new Response('',{status:503})),repository,true),/503/);
+const output = render(download,'download.html',two);
+assert.doesNotMatch(output, /<script>/);
+assert.match(output, /&lt;script&gt;/);
+assert.equal(output,render(download,'download.html',await build([f.first,f.next],f.next)));
+assert.match(output, /href="releases\.json"/);
+const [current, history] = output.split('stable-current');
+assert.ok(current && history === undefined); // i blocchi sono sostituiti durante la build
+console.log('PASS A04–A16, A20, A22: fixture sintetiche e API iniettata.');
+

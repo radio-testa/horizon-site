@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HORIZON public release metadata",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "publicVersion",
+    "technicalVersion",
+    "buildId",
+    "installerSha256"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "publicVersion": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?![\\s\\S])"
+    },
+    "technicalVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+\\.\\d+(?![\\s\\S])"
+    },
+    "buildId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]{1,120}(?![\\s\\S])"
+    },
+    "installerSha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+    }
+  }
+}
