@@ -57,7 +57,8 @@ export async function buildCatalog(source, repository, enabled = false) {
       typeof release.name === 'string' && release.name.trim() && release.name.length <= 200 &&
       typeof release.body === 'string' && release.body.length <= 32000, version + ': metadati release non validi');
     const info = infoAsset(release, 'horizon-release.json', repository, 65536);
-    const meta = JSON.parse((await verifyBytes(info, source.asset, true)).toString('utf8'));
+    const metadataBytes = await verifyBytes(info, source.asset, true);
+    const meta = JSON.parse(metadataBytes.toString('utf8').replace(/^\uFEFF/, ''));
     check(meta?.schemaVersion === 1 && meta.publicVersion === version &&
       typeof meta.technicalVersion === 'string' && /^\d+\.\d+\.\d+\.\d+(?![\s\S])/.test(meta.technicalVersion) &&
       meta.technicalVersion.split('.').every(part => Number(part) <= 65535) &&

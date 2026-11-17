@@ -14,6 +14,9 @@ assert.doesNotMatch(render(download,'download.html',empty), /href="[^"]+\.exe"/)
 const one = await build([f.first], f.first);
 assert.equal(one.current, '1.1.5');
 assert.match(render(download,'download.html',one), /href="[^"]+\/v1\.1\.5\/HORIZON_Setup\.exe"/);
+const bom = fixtures({metadataBom:true});
+assert.equal((await buildCatalog(bom.source([bom.first], bom.first), repository, true)).current, '1.1.5');
+await assert.rejects(buildCatalog(bom.source([bom.first], bom.first, '.json'), repository, true), /SHA-256/);
 const two = await build([f.first,f.next,f.draft,f.candidate], f.next);
 assert.deepEqual(two.releases.map(r=>r.version), ['1.1.6','1.1.5']);
 assert.match(render(home,'index.html',two), /HORIZON 1\.1\.6 Stable/);

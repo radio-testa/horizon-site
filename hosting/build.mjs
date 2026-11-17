@@ -22,10 +22,10 @@ export function render(input, name, catalog) {
   let html = input.replace('Nessuna Stable disponibile.<br>Download non attivi.',
     active ? 'Stable corrente: ' + escape(active.version) : 'Nessuna Stable disponibile.<br>Download non attivi.');
   if (name === 'index.html' && active) {
-    html = html.replace('HORIZON 1.1.5 Stable · Pubblicazione in attesa di approvazione', 'HORIZON ' + escape(active.version) + ' Stable');
+    html = html.replace('HORIZON 1.1.5 · Download non disponibile', 'HORIZON ' + escape(active.version) + ' Stable');
   }
   if (active) {
-    html = html.replace("Le funzioni descritte non corrispondono a una versione già scaricabile. La dotazione della prima Stable sarà indicata nelle sue note di rilascio.", "La dotazione delle versioni pubblicate è descritta nelle note di rilascio.");
+    html = html.replace("Scopri le funzioni di HORIZON 1.1.5. I requisiti completi saranno indicati nella scheda di rilascio.", "La dotazione delle versioni pubblicate è descritta nelle note di rilascio.");
     html = html.replace("Non è ancora disponibile una Stable da installare. Le funzioni qui descritte illustrano HORIZON; disponibilità, requisiti e istruzioni operative saranno specificati per ciascuna versione pubblicata.", "Consulta le note di rilascio per la dotazione, i requisiti e le istruzioni della versione corrente.");
     html = html.replace("Nessuna Stable è attualmente disponibile per il download.", "La versione disponibile è indicata nella pagina Download.");
     html = html.replace("Al momento non sono disponibili release Stable o installer autorizzati.", "Verifica che il file scelto corrisponda alla Stable indicata nella pagina Download.");

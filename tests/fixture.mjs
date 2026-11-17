@@ -3,12 +3,12 @@ import {createHash} from 'node:crypto';
 export const repository = 'radio-testa/horizon-fixture';
 const hash = data => createHash('sha256').update(data).digest('hex');
 
-export function fixtures() {
+export function fixtures({metadataBom = false} = {}) {
   const blobs = new Map();
   function release(version, id, extra = {}) {
     const tag = 'v' + version;
     const installer = Buffer.from('fixture-' + version);
-    const meta = Buffer.from(JSON.stringify({schemaVersion:1, publicVersion:version,
+    const meta = Buffer.from((metadataBom ? '\uFEFF' : '') + JSON.stringify({schemaVersion:1, publicVersion:version,
       technicalVersion:'0.0.0.' + id, buildId:'synthetic-' + id, installerSha256:hash(installer)}));
     function asset(name, data) {
       const url = 'https://github.com/' + repository + '/releases/download/' + tag + '/' + name;
@@ -29,7 +29,7 @@ export function fixtures() {
         latest:async () => latest,
         async *asset(url) {
           const data = Buffer.from(blobs.get(url));
-          if (tamper && url.endsWith('.exe')) data[0] ^= 1;
+          if (tamper && url.endsWith(tamper === true ? '.exe' : tamper)) data[0] ^= 1;
           yield data;
         }
       };
