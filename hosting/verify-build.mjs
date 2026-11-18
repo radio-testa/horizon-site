@@ -23,6 +23,9 @@ assert(catalog.current === null ? catalog.releases.length === 0 : current);
 const download = read('download.html');
 if (current) assert(download.includes('href="' + current.installer.url + '">Scarica HORIZON'));
 const assets = new Set(catalog.releases.map(release => release.installer.url));
+const documentAssets = new Set(['EULA_HORIZON_1.1.5.md',
+  'HORIZON_Licenze_e_Sorgenti_1.1.5_r1.zip', 'HORIZON_PawnIO_Corredo_Pubblico_r2.zip']
+  .map(name => 'https://github.com/radio-testa/horizon-site/releases/download/v1.1.5/' + name));
 let count = 0;
 for (const name of allowed.filter(file=>file.endsWith('.html'))) {
   const html = read(name);
@@ -31,7 +34,7 @@ for (const name of allowed.filter(file=>file.endsWith('.html'))) {
   for (const [, attr, ref] of html.matchAll(/\b(href|src)="([^"]+)"/gi)) {
     if (/^https:\/\//.test(ref)) {
       assert.equal(attr,'href');
-      if (/\/releases\/download\/|\.exe(?:$|[?#])/.test(ref)) assert(assets.has(ref));
+      if (/\/releases\/download\/|\.exe(?:$|[?#])/.test(ref)) assert(assets.has(ref) || documentAssets.has(ref));
       continue;
     }
     const [target, anchor] = ref.split('#');
